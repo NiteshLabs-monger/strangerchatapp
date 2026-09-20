@@ -84,7 +84,7 @@ func (c *Client) readPump(h *Hub) {
 	}()
 
 	for {
-		_, message, err := c.conn.ReadMessage()
+		_ , message, err := c.conn.ReadMessage()
 		if err != nil {
 			break // Connection closed or error occurred
 		}
@@ -150,7 +150,7 @@ func main() {
 	})
 
 	// Keep our WebSocket endpoint mapped
-	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("/text", func(w http.ResponseWriter, r *http.Request) {
 		serveWs(hub, w, r)
 	})
 
