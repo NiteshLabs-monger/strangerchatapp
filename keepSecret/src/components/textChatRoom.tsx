@@ -26,7 +26,6 @@ export default function ChatRoom() {
   }, [messageArray]);
 
   useEffect(() => {
-    // 1. Establish the connection once on mount
     const ws = new WebSocket("ws://localhost:8080/text");
     wsRef.current = ws;
 
@@ -68,8 +67,8 @@ export default function ChatRoom() {
   };
 
   return (
-    <div className="h-96 w-5/6 max-w-md bg-amber-400 p-3 rounded-lg shadow-md relative flex flex-col justify-between">
-      {/* Scrollable Message Container */}
+    <div className="h-4/5 w-5/6  bg-amber-400 p-3 rounded-lg shadow-md relative flex flex-col justify-between m-auto">
+
       <div className="messages overflow-y-auto flex-1 flex flex-col gap-2 p-1 pr-2 mb-2">
         {messageArray.map((msg) => (
           <div

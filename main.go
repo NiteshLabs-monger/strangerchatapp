@@ -84,7 +84,7 @@ func (c *Client) readPump(h *Hub) {
 	}()
 
 	for {
-		_ , message, err := c.conn.ReadMessage()
+		_, message, err := c.conn.ReadMessage()
 		if err != nil {
 			break // Connection closed or error occurred
 		}
