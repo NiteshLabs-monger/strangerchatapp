@@ -23,6 +23,7 @@ type Client struct {
 type Hub struct {
 	register   chan *Client
 	unregister chan *Client
+	skip       chan *Client
 	waiting    *Client
 	mu         sync.Mutex
 }
@@ -31,6 +32,7 @@ func NewHub() *Hub {
 	return &Hub{
 		register:   make(chan *Client),
 		unregister: make(chan *Client),
+		skip:       make(chan *Client),
 	}
 }
 
@@ -51,6 +53,27 @@ func (h *Hub) run() {
 
 				client.send <- []byte("Connected to a random stranger! Say hi!")
 				stranger.send <- []byte("Connected to a random stranger! Say hi!")
+			}
+			h.mu.Unlock()
+
+		case client := <-h.skip: // NEW: Handle skip logic
+			h.mu.Lock()
+			// Only skip if the client is currently matched with someone
+			if client.peer != nil {
+				peer := client.peer
+
+				// 1. Break the pair connection
+				client.peer = nil
+				peer.peer = nil
+
+				// 2. Notify both users
+				client.send <- []byte("You skipped the chat. Searching for a new match...")
+				peer.send <- []byte("Stranger has left. Searching for a new match...")
+
+				go func(c1, c2 *Client) {
+					h.register <- c1
+					h.register <- c2
+				}(client, peer)
 			}
 			h.mu.Unlock()
 
