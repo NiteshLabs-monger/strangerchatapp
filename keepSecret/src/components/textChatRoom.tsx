@@ -97,10 +97,12 @@ export default function ChatRoom() {
             key={msg.id}
             className={`flex ${
               msg.sender === "user" ? "justify-end" : "justify-start"
+              
             }`}
           >
             <div
-              className={`max-w-[75%] px-3 py-1.5 rounded-lg text-sm break-words shadow-sm ${
+              className={`max-w-[75%] px-3 py-1.5 rounded-lg text-sm break-words shadow-sm 
+                animate-in fade-in slide-in-from-bottom-2 duration-300 ${
                 msg.sender === "user"
                   ? "bg-amber-700 text-white rounded-br-none"
                   : "bg-white text-gray-800 rounded-bl-none"
@@ -111,7 +113,7 @@ export default function ChatRoom() {
           </div>
         ))}
 
-        {/* Render Stranger's Typing Indicator */}
+    
         {isTyping && (<TypingIndicator />)}
 
         <div ref={messagesEndRef} />
