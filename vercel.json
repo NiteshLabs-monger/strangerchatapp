@@ -3,7 +3,8 @@
   "services": {
     "app": {
       "root": ".",
-      "runtime": "go"
+      "runtime": "go",
+      "entrypoint": "main.go"
     },
     "keepsecret": {
       "root": "keepSecret",
