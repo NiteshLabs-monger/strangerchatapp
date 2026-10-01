@@ -112,8 +112,13 @@ func (c *Client) readPump(h *Hub) {
 			break // Connection closed or error occurred
 		}
 
+		if string(message) == "/skip" {
+			h.skip <- c
+			continue
+		}
+
 		h.mu.Lock()
-		// If they have a partner, route the message directly to the partner's mailbox
+
 		if c.peer != nil {
 			c.peer.send <- message
 		} else {

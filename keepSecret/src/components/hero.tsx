@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { MessageSquare, Video, Shield, Sparkles, Users, ArrowRight } from 'lucide-react';
-
+import { Link } from 'react-router-dom';
 export const StrangerChatHero: React.FC = () => {
   const [chatType, setChatType] = useState<'video' | 'text'>('video');
 
@@ -75,13 +75,15 @@ export const StrangerChatHero: React.FC = () => {
           </div>
 
           {/* Start Button */}
+          <Link to={`/${chatType}`}>
           <button
             className="w-full py-4 rounded-2xl font-bold text-lg text-neutral-950 flex items-center justify-center gap-3 transition-transform active:scale-[0.98] shadow-lg hover:brightness-110"
             style={{ backgroundColor: 'oklch(82.8% 0.189 84.429)' }}
           >
-            <span>Start {chatType === 'video' ? 'Video' : 'Text'} Call</span>
+            <span>Start {chatType === 'video' ? 'Video' : 'text'} Call</span>
             <ArrowRight className="w-5 h-5" />
           </button>
+          </Link>
         </div>
 
         {/* Trust Indicators */}
