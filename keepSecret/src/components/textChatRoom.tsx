@@ -53,7 +53,7 @@ export default function ChatRoom() {
       try {
         const data = JSON.parse(event.data);
         if (data.type === 'online_count') {
-          setOnlineCount(data.count);
+          setActiveUsers(data.count);
         }
       } catch (err) {
         console.error('Error parsing WebSocket message:', err);
@@ -144,7 +144,7 @@ export default function ChatRoom() {
     <div className="h-screen w-5/6 bg-amber-400 p-3 rounded-lg shadow-md relative flex flex-col justify-between m-auto">
       <header className="w-full h-1/12 flex p-3 items-center justify-between bg-amber-800 rounded-lg">
         <div className="status flex gap-1 text-[#FFE66D] font-bold">{connStatus} 
-          {connStatus =="searching for a stranger"? <Loader className="animate-spin"/>:""}
+          {connStatus =="Searching for a stranger..."? <Loader className="animate-spin"/>:""}
         </div>
         <div className="text-white font-bold">online : {activeUsers}</div>
        
