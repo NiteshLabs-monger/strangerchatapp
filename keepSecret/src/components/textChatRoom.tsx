@@ -14,7 +14,7 @@ export default function ChatRoom() {
   const [messageArray, setMessageArray] = useState<Message[]>([]);
   const [isTyping, setIsTyping] = useState<boolean>(false);
   const [connStatus, setConnStatus] = useState<string>(
-    "searching for a stranger",
+    "Searching for a stranger...",
   );
   const [activeUsers, setActiveUsers] = useState<number>(0);
 
