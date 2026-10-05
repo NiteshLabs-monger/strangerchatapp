@@ -50,6 +50,15 @@ export default function ChatRoom() {
         }, 2000);
         return;
       }
+      try {
+        const data = JSON.parse(event.data);
+        if (data.type === 'online_count') {
+          setOnlineCount(data.count);
+        }
+      } catch (err) {
+        console.error('Error parsing WebSocket message:', err);
+      }
+    };
       if (event.data == "Connected to a random stranger! Say hi!") {
   
           setConnStatus("connected");
