@@ -20,7 +20,7 @@ export default function ChatRoom() {
 
   const wsRef = useRef<WebSocket | null>(null);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
-  const typingTimeoutRef = useRef(null);
+  const typingTimeoutRef = useRef<ReturnType<typeof setTimeout>| null>(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
