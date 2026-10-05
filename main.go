@@ -8,11 +8,17 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-var upgrader = websocket.Upgrader{
-	ReadBufferSize:  1024,
-	WriteBufferSize: 1024,
-	CheckOrigin:     func(r *http.Request) bool { return true },
-}
+var (
+	upgrader = websocket.Upgrader{
+		// Allow requests from Vite frontend dev server and Vercel domains
+		CheckOrigin: func(r *http.Request) bool {
+			return true
+		},
+	}
+
+	clients   = make(map[*websocket.Conn]bool)
+	mutex     = sync.Mutex{}
+)
 
 type Client struct {
 	conn *websocket.Conn
@@ -28,6 +34,23 @@ type Hub struct {
 	mu         sync.Mutex
 }
 
+func broadcastOnlineCount() {
+	mutex.Lock()
+	count := len(clients)
+	msg := map[string]interface{}{
+		"type":  "online_count",
+		"count": count,
+	}
+
+	for client := range clients {
+		err := client.WriteJSON(msg)
+		if err != nil {
+			client.Close()
+			delete(clients, client)
+		}
+	}
+	mutex.Unlock()
+}
 func NewHub() *Hub {
 	return &Hub{
 		register:   make(chan *Client),
@@ -150,6 +173,37 @@ func serveWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 		fmt.Println(err)
 		return
 
+	}
+
+	conn, err := upgrader.Upgrade(w, r, nil)
+	if err != nil {
+		log.Println("Upgrade error:", err)
+		return
+	}
+
+	// Register new client
+	mutex.Lock()
+	clients[conn] = true
+	mutex.Unlock()
+
+	// Notify all clients about updated online count
+	broadcastOnlineCount()
+
+	// Keep connection alive & handle disconnect
+	defer func() {
+		mutex.Lock()
+		delete(clients, conn)
+		mutex.Unlock()
+		conn.Close()
+		broadcastOnlineCount() // Broadcast updated count on disconnect
+	}()
+
+	for {
+		// Read messages (if client sends anything), or keep alive until close
+		_, _, err := conn.ReadMessage()
+		if err != nil {
+			break // Client disconnected
+		}
 	}
 
 	// Create the new client instance
