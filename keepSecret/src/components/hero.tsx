@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { MessageSquare, Video, Shield, Sparkles, Users, ArrowRight } from 'lucide-react';
+import { MessageSquare, Video, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 export const StrangerChatHero: React.FC = () => {
   const [chatType, setChatType] = useState<'video' | 'text'>('video');
