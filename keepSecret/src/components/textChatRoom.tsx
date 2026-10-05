@@ -35,8 +35,6 @@ export default function ChatRoom() {
     const ws = new WebSocket("ws://localhost:8080/text");
     wsRef.current = ws;
 
-    setActiveUsers((prev) => prev + 1);
-
     ws.onmessage = (event) => {
       // 1. Check if the message is a typing signal
       if (event.data === "typing") {
@@ -58,7 +56,7 @@ export default function ChatRoom() {
       } catch (err) {
         console.error('Error parsing WebSocket message:', err);
       }
-    };
+  
       if (event.data == "Connected to a random stranger! Say hi!") {
   
           setConnStatus("connected");
@@ -67,7 +65,7 @@ export default function ChatRoom() {
 
         if (event.data == "Searching for a stranger...") {
   
-          setConnStatus("searching for a stranger...");
+          setConnStatus("Searching for a stranger...");
           return;
         }
 
@@ -118,7 +116,7 @@ export default function ChatRoom() {
       setMessageArray([]);
       // 3. Clear typing indicator and set status back to searching
       setIsTyping(false);
-      setConnStatus("searching");
+      setConnStatus("Searching for a stranger...");
     }
   };
 
