@@ -14,7 +14,7 @@ export default function ChatRoom() {
   const [messageArray, setMessageArray] = useState<Message[]>([]);
   const [isTyping, setIsTyping] = useState<boolean>(false);
   const [connStatus, setConnStatus] = useState<string>(
-    "searching for a stranger",
+    "Searching for a stranger...",
   );
   const [activeUsers, setActiveUsers] = useState<number>(0);
 
@@ -35,10 +35,9 @@ export default function ChatRoom() {
     const ws = new WebSocket("ws://localhost:8080/text");
     wsRef.current = ws;
 
-    setActiveUsers((prev) => prev + 1);
+
 
     ws.onmessage = (event) => {
-      // 1. Check if the message is a typing signal
       if (event.data === "typing") {
         setIsTyping(true);
 
@@ -50,6 +49,16 @@ export default function ChatRoom() {
         }, 2000);
         return;
       }
+       try {
+        const data = JSON.parse(event.data);
+        if (data.type === 'online_count') {
+          setActiveUsers(data.count);
+        }
+      } catch (err) {
+        console.error('Error parsing WebSocket message:', err);
+      }
+     
+    
       if (event.data == "Connected to a random stranger! Say hi!") {
   
           setConnStatus("connected");
@@ -58,13 +67,12 @@ export default function ChatRoom() {
 
         if (event.data == "Searching for a stranger...") {
   
-          setConnStatus("searching for a stranger...");
+          setConnStatus("Searching for a stranger...");
           return;
         }
 
         if (
-          event.data.includes("Stranger has disconnected") ||
-          event.data.includes("left")
+          event.data == "Stranger has disconnected. Searching for a new match..."
         ) {
           setConnStatus("disconnected");
           return;
@@ -87,6 +95,7 @@ export default function ChatRoom() {
 
     return () => {
       ws.close();
+      setActiveUsers((prev)=> prev -1)
       if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
     };
   }, []);
@@ -101,7 +110,7 @@ export default function ChatRoom() {
   };
   const handleSkip = () => {
     if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
-      // 1. Send the skip command to the Go backend
+    
       wsRef.current.send("/skip");
 
       // 2. Clear previous chat history from the screen
@@ -109,7 +118,7 @@ export default function ChatRoom() {
       setMessageArray([]);
       // 3. Clear typing indicator and set status back to searching
       setIsTyping(false);
-      setConnStatus("searching");
+      setConnStatus("Searching for a stranger...");
     }
   };
 
@@ -135,7 +144,7 @@ export default function ChatRoom() {
     <div className="h-screen w-5/6 bg-amber-400 p-3 rounded-lg shadow-md relative flex flex-col justify-between m-auto">
       <header className="w-full h-1/12 flex p-3 items-center justify-between bg-amber-800 rounded-lg">
         <div className="status flex gap-1 text-[#FFE66D] font-bold">{connStatus} 
-          {connStatus =="searching for a stranger"? <Loader className="animate-spin"/>:""}
+          {connStatus =="Searching for a stranger..."? <Loader className="animate-spin"/>:""}
         </div>
         <div className="text-white font-bold">online : {activeUsers}</div>
        

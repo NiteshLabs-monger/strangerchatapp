@@ -8,11 +8,16 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-var upgrader = websocket.Upgrader{
-	ReadBufferSize:  1024,
-	WriteBufferSize: 1024,
-	CheckOrigin:     func(r *http.Request) bool { return true },
-}
+var (
+	upgrader = websocket.Upgrader{
+		CheckOrigin: func(r *http.Request) bool {
+			return true
+		},
+	}
+
+	clients = make(map[*websocket.Conn]bool)
+	mutex   = sync.Mutex{}
+)
 
 type Client struct {
 	conn *websocket.Conn
@@ -26,6 +31,24 @@ type Hub struct {
 	skip       chan *Client
 	waiting    *Client
 	mu         sync.Mutex
+}
+
+func broadcastOnlineCount() {
+	mutex.Lock()
+	count := len(clients)
+	msg := map[string]any{
+		"type":  "online_count",
+		"count": count,
+	}
+
+	for client := range clients {
+		err := client.WriteJSON(msg)
+		if err != nil {
+			client.Close()
+			delete(clients, client)
+		}
+	}
+	mutex.Unlock()
 }
 
 func NewHub() *Hub {
@@ -95,10 +118,6 @@ func (h *Hub) run() {
 	}
 }
 
-// ==========================================
-// NEW CODE: THE READ & WRITE PUMPS
-// ==========================================
-
 // 1. ReadPump listens for text incoming from the user's browser
 func (c *Client) readPump(h *Hub) {
 	defer func() {
@@ -128,13 +147,11 @@ func (c *Client) readPump(h *Hub) {
 	}
 }
 
-// 2. WritePump listens to the user's private mailbox and sends it to their browser
 func (c *Client) writePump() {
 	defer func() {
 		c.conn.Close()
 	}()
 
-	// This loop waits for data to appear in the c.send channel
 	for message := range c.send {
 		err := c.conn.WriteMessage(websocket.TextMessage, message)
 		if err != nil {
@@ -152,7 +169,22 @@ func serveWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 
 	}
 
-	// Create the new client instance
+	mutex.Lock()
+	clients[conn] = true
+	mutex.Unlock()
+
+	// Notify all clients about updated online count
+	broadcastOnlineCount()
+
+	// Keep connection alive & handle disconnect
+	defer func() {
+		mutex.Lock()
+		delete(clients, conn)
+		mutex.Unlock()
+		conn.Close()
+		broadcastOnlineCount()
+	}()
+
 	client := &Client{
 		conn: conn,
 		send: make(chan []byte, 256), // Buffered channel to prevent lag
@@ -171,11 +203,6 @@ func serveWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 func main() {
 	hub := NewHub()
 	go hub.run()
-
-	// NEW: Serve the static HTML page at the root URL "/"
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "index.html")
-	})
 
 	// Keep our WebSocket endpoint mapped
 	http.HandleFunc("/text", func(w http.ResponseWriter, r *http.Request) {
