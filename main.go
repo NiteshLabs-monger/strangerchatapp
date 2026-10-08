@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"sync"
@@ -15,7 +16,7 @@ var (
 		},
 	}
 
-	clients = make(map[*websocket.Conn]bool)
+	clients = make(map[*Client]bool)
 	mutex   = sync.Mutex{}
 )
 
@@ -36,16 +37,21 @@ type Hub struct {
 func broadcastOnlineCount() {
 	mutex.Lock()
 	count := len(clients)
-	msg := map[string]any{
+
+	msgData, err := json.Marshal(map[string]any{
 		"type":  "online_count",
 		"count": count,
+	})
+	if err != nil {
+		mutex.Unlock()
+		return
 	}
 
 	for client := range clients {
-		err := client.WriteJSON(msg)
-		if err != nil {
-			client.Close()
-			delete(clients, client)
+		select {
+		case client.send <- msgData:
+		default:
+			// If channel buffer is full, connection is slow or unresponsive
 		}
 	}
 	mutex.Unlock()
@@ -168,9 +174,13 @@ func serveWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 		return
 
 	}
+	client := &Client{
+		conn: conn,
+		send: make(chan []byte, 256), // Buffered channel to prevent lag
+	}
 
 	mutex.Lock()
-	clients[conn] = true
+	clients[client] = true
 	mutex.Unlock()
 
 	// Notify all clients about updated online count
@@ -179,16 +189,11 @@ func serveWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 	// Keep connection alive & handle disconnect
 	defer func() {
 		mutex.Lock()
-		delete(clients, conn)
+		delete(clients, client)
 		mutex.Unlock()
 		conn.Close()
 		broadcastOnlineCount()
 	}()
-
-	client := &Client{
-		conn: conn,
-		send: make(chan []byte, 256), // Buffered channel to prevent lag
-	}
 
 	// Register them to the Hub lobby
 	hub.register <- client

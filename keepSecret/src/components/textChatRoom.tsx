@@ -52,7 +52,8 @@ export default function ChatRoom() {
        try {
         const data = JSON.parse(event.data);
         if (data.type === 'online_count') {
-          setActiveUsers(data.count);
+          setActiveUsers(data.count);   
+          return;
         }
       } catch (err) {
         console.error('Error parsing WebSocket message:', err);
@@ -95,7 +96,6 @@ export default function ChatRoom() {
 
     return () => {
       ws.close();
-      setActiveUsers((prev)=> prev -1)
       if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
     };
   }, []);
