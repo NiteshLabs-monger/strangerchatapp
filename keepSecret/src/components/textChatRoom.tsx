@@ -35,8 +35,12 @@ export default function ChatRoom() {
     const ws = new WebSocket("ws://localhost:8080/text");
     wsRef.current = ws;
 
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> 608dded (edited textchatroom)
     ws.onmessage = (event) => {
-      // 1. Check if the message is a typing signal
       if (event.data === "typing") {
         setIsTyping(true);
 
@@ -48,7 +52,11 @@ export default function ChatRoom() {
         }, 2000);
         return;
       }
+<<<<<<< HEAD
       try {
+=======
+       try {
+>>>>>>> 608dded (edited textchatroom)
         const data = JSON.parse(event.data);
         if (data.type === 'online_count') {
           setActiveUsers(data.count);
@@ -56,7 +64,12 @@ export default function ChatRoom() {
       } catch (err) {
         console.error('Error parsing WebSocket message:', err);
       }
+<<<<<<< HEAD
   
+=======
+     
+    
+>>>>>>> 608dded (edited textchatroom)
       if (event.data == "Connected to a random stranger! Say hi!") {
   
           setConnStatus("connected");
@@ -70,8 +83,7 @@ export default function ChatRoom() {
         }
 
         if (
-          event.data.includes("Stranger has disconnected") ||
-          event.data.includes("left")
+          event.data == "Stranger has disconnected. Searching for a new match..."
         ) {
           setConnStatus("disconnected");
           return;
@@ -94,6 +106,7 @@ export default function ChatRoom() {
 
     return () => {
       ws.close();
+      setActiveUsers((prev)=> prev -1)
       if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
     };
   }, []);
@@ -108,7 +121,7 @@ export default function ChatRoom() {
   };
   const handleSkip = () => {
     if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
-      // 1. Send the skip command to the Go backend
+    
       wsRef.current.send("/skip");
 
       // 2. Clear previous chat history from the screen

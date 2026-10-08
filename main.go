@@ -10,14 +10,22 @@ import (
 
 var (
 	upgrader = websocket.Upgrader{
+<<<<<<< HEAD
 		// Allow requests from Vite frontend dev server and Vercel domains
+=======
+>>>>>>> 608dded (edited textchatroom)
 		CheckOrigin: func(r *http.Request) bool {
 			return true
 		},
 	}
 
+<<<<<<< HEAD
 	clients   = make(map[*websocket.Conn]bool)
 	mutex     = sync.Mutex{}
+=======
+	clients = make(map[*websocket.Conn]bool)
+	mutex   = sync.Mutex{}
+>>>>>>> 608dded (edited textchatroom)
 )
 
 type Client struct {
@@ -37,7 +45,11 @@ type Hub struct {
 func broadcastOnlineCount() {
 	mutex.Lock()
 	count := len(clients)
+<<<<<<< HEAD
 	msg := map[string]interface{}{
+=======
+	msg := map[string]any{
+>>>>>>> 608dded (edited textchatroom)
 		"type":  "online_count",
 		"count": count,
 	}
@@ -51,6 +63,10 @@ func broadcastOnlineCount() {
 	}
 	mutex.Unlock()
 }
+<<<<<<< HEAD
+=======
+
+>>>>>>> 608dded (edited textchatroom)
 func NewHub() *Hub {
 	return &Hub{
 		register:   make(chan *Client),
@@ -118,10 +134,6 @@ func (h *Hub) run() {
 	}
 }
 
-// ==========================================
-// NEW CODE: THE READ & WRITE PUMPS
-// ==========================================
-
 // 1. ReadPump listens for text incoming from the user's browser
 func (c *Client) readPump(h *Hub) {
 	defer func() {
@@ -151,13 +163,11 @@ func (c *Client) readPump(h *Hub) {
 	}
 }
 
-// 2. WritePump listens to the user's private mailbox and sends it to their browser
 func (c *Client) writePump() {
 	defer func() {
 		c.conn.Close()
 	}()
 
-	// This loop waits for data to appear in the c.send channel
 	for message := range c.send {
 		err := c.conn.WriteMessage(websocket.TextMessage, message)
 		if err != nil {
@@ -175,6 +185,7 @@ func serveWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 
 	}
 
+<<<<<<< HEAD
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Println("Upgrade error:", err)
@@ -182,6 +193,8 @@ func serveWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Register new client
+=======
+>>>>>>> 608dded (edited textchatroom)
 	mutex.Lock()
 	clients[conn] = true
 	mutex.Unlock()
@@ -195,6 +208,7 @@ func serveWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 		delete(clients, conn)
 		mutex.Unlock()
 		conn.Close()
+<<<<<<< HEAD
 		broadcastOnlineCount() // Broadcast updated count on disconnect
 	}()
 
@@ -207,6 +221,11 @@ func serveWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Create the new client instance
+=======
+		broadcastOnlineCount()
+	}()
+
+>>>>>>> 608dded (edited textchatroom)
 	client := &Client{
 		conn: conn,
 		send: make(chan []byte, 256), // Buffered channel to prevent lag
@@ -225,11 +244,6 @@ func serveWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 func main() {
 	hub := NewHub()
 	go hub.run()
-
-	// NEW: Serve the static HTML page at the root URL "/"
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "index.html")
-	})
 
 	// Keep our WebSocket endpoint mapped
 	http.HandleFunc("/text", func(w http.ResponseWriter, r *http.Request) {
