@@ -20,7 +20,7 @@ export default function ChatRoom() {
 
   const wsRef = useRef<WebSocket | null>(null);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
-  const typingTimeoutRef = useRef<ReturnType<typeof setTimeout>| null>(null);
+  const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -35,44 +35,34 @@ export default function ChatRoom() {
     const ws = new WebSocket("ws://localhost:8080/text");
     wsRef.current = ws;
 
-<<<<<<< HEAD
-=======
 
 
->>>>>>> 608dded (edited textchatroom)
     ws.onmessage = (event) => {
       if (event.data === "typing") {
         setIsTyping(true);
-
-        
-        // Clear existing timer and reset typing state after 2 seconds of silence
         if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
         typingTimeoutRef.current = setTimeout(() => {
           setIsTyping(false);
         }, 2000);
         return;
       }
-<<<<<<< HEAD
-      try {
-=======
        try {
->>>>>>> 608dded (edited textchatroom)
         const data = JSON.parse(event.data);
         if (data.type === 'online_count') {
-          setActiveUsers(data.count);
+          setActiveUsers(data.count);   
+          return;
         }
       } catch (err) {
         console.error('Error parsing WebSocket message:', err);
       }
-<<<<<<< HEAD
-  
-=======
-     
+     if(event.data == "Stranger has left. Searching for a new match..."){
+      setConnStatus("Stranger has left. Searching for a new match...")
+      return;
+     }
     
->>>>>>> 608dded (edited textchatroom)
       if (event.data == "Connected to a random stranger! Say hi!") {
   
-          setConnStatus("connected");
+          setConnStatus("Connected to a random stranger! Say hi!");
           return;
         }
 
@@ -85,7 +75,7 @@ export default function ChatRoom() {
         if (
           event.data == "Stranger has disconnected. Searching for a new match..."
         ) {
-          setConnStatus("disconnected");
+          setConnStatus("Stranger has disconnected. Searching for a new match...");
           return;
         }
 
@@ -106,7 +96,6 @@ export default function ChatRoom() {
 
     return () => {
       ws.close();
-      setActiveUsers((prev)=> prev -1)
       if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
     };
   }, []);
@@ -155,7 +144,11 @@ export default function ChatRoom() {
     <div className="h-screen w-5/6 bg-amber-400 p-3 rounded-lg shadow-md relative flex flex-col justify-between m-auto">
       <header className="w-full h-1/12 flex p-3 items-center justify-between bg-amber-800 rounded-lg">
         <div className="status flex gap-1 text-[#FFE66D] font-bold">{connStatus} 
-          {connStatus =="Searching for a stranger..."? <Loader className="animate-spin"/>:""}
+          {connStatus =="Searching for a stranger..."||
+          "Stranger has disconnected. Searching for a new match..."||
+          "Stranger has left. Searching for a new match..."
+          ? <Loader className="animate-spin"/>
+          :""}
         </div>
         <div className="text-white font-bold">online : {activeUsers}</div>
        

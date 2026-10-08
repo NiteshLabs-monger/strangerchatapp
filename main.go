@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"sync"
@@ -10,22 +11,13 @@ import (
 
 var (
 	upgrader = websocket.Upgrader{
-<<<<<<< HEAD
-		// Allow requests from Vite frontend dev server and Vercel domains
-=======
->>>>>>> 608dded (edited textchatroom)
 		CheckOrigin: func(r *http.Request) bool {
 			return true
 		},
 	}
 
-<<<<<<< HEAD
-	clients   = make(map[*websocket.Conn]bool)
-	mutex     = sync.Mutex{}
-=======
-	clients = make(map[*websocket.Conn]bool)
+	clients = make(map[*Client]bool)
 	mutex   = sync.Mutex{}
->>>>>>> 608dded (edited textchatroom)
 )
 
 type Client struct {
@@ -45,28 +37,26 @@ type Hub struct {
 func broadcastOnlineCount() {
 	mutex.Lock()
 	count := len(clients)
-<<<<<<< HEAD
-	msg := map[string]interface{}{
-=======
-	msg := map[string]any{
->>>>>>> 608dded (edited textchatroom)
+
+	msgData, err := json.Marshal(map[string]any{
 		"type":  "online_count",
 		"count": count,
+	})
+	if err != nil {
+		mutex.Unlock()
+		return
 	}
 
 	for client := range clients {
-		err := client.WriteJSON(msg)
-		if err != nil {
-			client.Close()
-			delete(clients, client)
+		select {
+		case client.send <- msgData:
+		default:
+			// If channel buffer is full, connection is slow or unresponsive
 		}
 	}
 	mutex.Unlock()
 }
-<<<<<<< HEAD
-=======
 
->>>>>>> 608dded (edited textchatroom)
 func NewHub() *Hub {
 	return &Hub{
 		register:   make(chan *Client),
@@ -184,19 +174,13 @@ func serveWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 		return
 
 	}
-
-<<<<<<< HEAD
-	conn, err := upgrader.Upgrade(w, r, nil)
-	if err != nil {
-		log.Println("Upgrade error:", err)
-		return
+	client := &Client{
+		conn: conn,
+		send: make(chan []byte, 256), // Buffered channel to prevent lag
 	}
 
-	// Register new client
-=======
->>>>>>> 608dded (edited textchatroom)
 	mutex.Lock()
-	clients[conn] = true
+	clients[client] = true
 	mutex.Unlock()
 
 	// Notify all clients about updated online count
@@ -205,31 +189,11 @@ func serveWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 	// Keep connection alive & handle disconnect
 	defer func() {
 		mutex.Lock()
-		delete(clients, conn)
+		delete(clients, client)
 		mutex.Unlock()
 		conn.Close()
-<<<<<<< HEAD
-		broadcastOnlineCount() // Broadcast updated count on disconnect
-	}()
-
-	for {
-		// Read messages (if client sends anything), or keep alive until close
-		_, _, err := conn.ReadMessage()
-		if err != nil {
-			break // Client disconnected
-		}
-	}
-
-	// Create the new client instance
-=======
 		broadcastOnlineCount()
 	}()
-
->>>>>>> 608dded (edited textchatroom)
-	client := &Client{
-		conn: conn,
-		send: make(chan []byte, 256), // Buffered channel to prevent lag
-	}
 
 	// Register them to the Hub lobby
 	hub.register <- client
