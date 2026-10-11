@@ -35,8 +35,6 @@ export default function ChatRoom() {
     const ws = new WebSocket("ws://localhost:8080/text");
     wsRef.current = ws;
 
-
-
     ws.onmessage = (event) => {
       if (event.data === "typing") {
         setIsTyping(true);
@@ -46,39 +44,38 @@ export default function ChatRoom() {
         }, 2000);
         return;
       }
-       try {
+      try {
         const data = JSON.parse(event.data);
-        if (data.type === 'online_count') {
-          setActiveUsers(data.count);   
+        if (data.type === "online_count") {
+          setActiveUsers(data.count);
           return;
         }
       } catch (err) {
-        console.error('Error parsing WebSocket message:', err);
+        console.error("Error parsing WebSocket message:", err);
       }
-     if(event.data == "Stranger has left. Searching for a new match..."){
-      setConnStatus("Stranger has left. Searching for a new match...")
-      return;
-     }
-    
-      if (event.data == "Connected to a random stranger! Say hi!") {
-  
-          setConnStatus("Connected to a random stranger! Say hi!");
-          return;
-        }
+      if (event.data === "Stranger has left. Searching for a new match...") {
+        setConnStatus("Stranger has left. Searching for a new match...");
+        return;
+      }
 
-        if (event.data == "Searching for a stranger...") {
-  
-          setConnStatus("Searching for a stranger...");
-          return;
-        }
+      if (event.data === "Connected to a random stranger! Say hi!") {
+        setConnStatus("Connected to a random stranger! Say hi!");
+        return;
+      }
 
-        if (
-          event.data == "Stranger has disconnected. Searching for a new match..."
-        ) {
-          setConnStatus("Stranger has disconnected. Searching for a new match...");
-          return;
-        }
+      if (event.data === "Searching for a stranger...") {
+        setConnStatus("Searching for a stranger...");
+        return;
+      }
 
+      if (
+        event.data === "Stranger has disconnected. Searching for a new match..."
+      ) {
+        setConnStatus(
+          "Stranger has disconnected. Searching for a new match...",
+        );
+        return;
+      }
 
       // 2. Hide typing indicator once an actual message arrives
       setIsTyping(false);
@@ -110,7 +107,6 @@ export default function ChatRoom() {
   };
   const handleSkip = () => {
     if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
-    
       wsRef.current.send("/skip");
 
       // 2. Clear previous chat history from the screen
@@ -143,15 +139,17 @@ export default function ChatRoom() {
   return (
     <div className="h-screen w-5/6 bg-amber-400 p-3 rounded-lg shadow-md relative flex flex-col justify-between m-auto">
       <header className="w-full h-1/12 flex p-3 items-center justify-between bg-amber-800 rounded-lg">
-        <div className="status flex gap-1 text-[#FFE66D] font-bold">{connStatus} 
-          {connStatus =="Searching for a stranger..."||
-          "Stranger has disconnected. Searching for a new match..."||
-          "Stranger has left. Searching for a new match..."
-          ? <Loader className="animate-spin"/>
-          :""}
+        <div className="status flex gap-1 text-[#FFE66D] font-bold">
+          {connStatus}
+          {connStatus == "Searching for a stranger..." ||
+          "Stranger has disconnected. Searching for a new match..." ||
+          "Stranger has left. Searching for a new match..." ? (
+            <Loader className="animate-spin" />
+          ) : (
+            ""
+          )}
         </div>
         <div className="text-white font-bold">online : {activeUsers}</div>
-       
       </header>
       <div className="messages overflow-y-auto flex-1 flex flex-col gap-2 p-1 pr-2 mb-2">
         {messageArray.map((msg) => (
@@ -188,11 +186,13 @@ export default function ChatRoom() {
         >
           Skip
         </button>
-        <button type="button" 
-        className="bg-[#CBF3F0] h-4/5 p-4  rounded-md flex items-center  text-center"
-        onClick={() => setActiveUsers(activeUsers-1)}>
+        <button
+          type="button"
+          className="bg-[#CBF3F0] h-4/5 p-4  rounded-md flex items-center  text-center"
+          onClick={() => setActiveUsers(activeUsers - 1)}
+        >
           <Link to="/home">Leave</Link>
-          </button>
+        </button>
         <input
           type="text"
           value={message}

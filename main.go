@@ -64,7 +64,6 @@ func NewHub() *Hub {
 		skip:       make(chan *Client),
 	}
 }
-
 func (h *Hub) run() {
 	for {
 		select {
@@ -85,9 +84,8 @@ func (h *Hub) run() {
 			}
 			h.mu.Unlock()
 
-		case client := <-h.skip: // NEW: Handle skip logic
+		case client := <-h.skip:
 			h.mu.Lock()
-			// Only skip if the client is currently matched with someone
 			if client.peer != nil {
 				peer := client.peer
 

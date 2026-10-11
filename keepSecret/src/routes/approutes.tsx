@@ -10,14 +10,7 @@ export const router = createBrowserRouter([
   {
     path: "/text",
     element: <ChatRoom/>,
-    // errorElement: <ErrorPage />,
-    // children: [
-    //   {
-    //     path: "dashboard",
-    //     element: <Dashboard />,
-    //     loader: dashboardLoader, // Data loads before component renders
-    //   },
-    // ],
+   
   },
   {
     path : "/home",
