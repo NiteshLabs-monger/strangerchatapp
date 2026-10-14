@@ -109,10 +109,7 @@ export default function ChatRoom() {
     if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
       wsRef.current.send("/skip");
 
-      // 2. Clear previous chat history from the screen
-
       setMessageArray([]);
-      // 3. Clear typing indicator and set status back to searching
       setIsTyping(false);
       setConnStatus("Searching for a stranger...");
     }
@@ -141,9 +138,10 @@ export default function ChatRoom() {
       <header className="w-full h-1/12 flex p-3 items-center justify-between bg-amber-800 rounded-lg">
         <div className="status flex gap-1 text-[#FFE66D] font-bold">
           {connStatus}
-          {connStatus == "Searching for a stranger..." ||
-          "Stranger has disconnected. Searching for a new match..." ||
-          "Stranger has left. Searching for a new match..." ? (
+          {connStatus === "Searching for a stranger..." ||
+          connStatus ===
+            "Stranger has disconnected. Searching for a new match..." ||
+          connStatus === "Stranger has left. Searching for a new match..." ? (
             <Loader className="animate-spin" />
           ) : (
             ""

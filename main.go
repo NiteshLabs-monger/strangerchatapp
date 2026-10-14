@@ -93,8 +93,6 @@ func (h *Hub) run() {
 				client.peer = nil
 				peer.peer = nil
 
-				// 2. Notify both users
-				client.send <- []byte("You skipped the chat. Searching for a new match...")
 				peer.send <- []byte("Stranger has left. Searching for a new match...")
 
 				go func(c1, c2 *Client) {
