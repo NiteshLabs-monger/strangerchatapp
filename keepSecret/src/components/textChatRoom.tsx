@@ -57,6 +57,7 @@ export default function ChatRoom() {
         setConnStatus("Stranger has left. Searching for a new match...");
         return;
       }
+      
 
       if (event.data === "Connected to a random stranger! Say hi!") {
         setConnStatus("Connected to a random stranger! Say hi!");
