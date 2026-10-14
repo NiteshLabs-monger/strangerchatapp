@@ -3,7 +3,9 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
+	"os"
 	"sync"
 
 	"github.com/gorilla/websocket"
@@ -202,14 +204,23 @@ func serveWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080" // Fallback for local testing
+	}
+
 	hub := NewHub()
 	go hub.run()
+	addr := "127.0.0.1:" + port
+	log.Printf("Server starting on %s...", addr)
+
+	if err := http.ListenAndServe(addr, nil); err != nil {
+		log.Fatalf("Server failed: %v", err)
+	}
 
 	// Keep our WebSocket endpoint mapped
 	http.HandleFunc("/text", func(w http.ResponseWriter, r *http.Request) {
 		serveWs(hub, w, r)
 	})
 
-	fmt.Println("Stranger Chat Server running on http://localhost:8080...")
-	http.ListenAndServe(":8080", nil)
 }
