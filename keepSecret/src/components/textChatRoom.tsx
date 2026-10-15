@@ -32,7 +32,7 @@ export default function ChatRoom() {
   }, [messageArray, isTyping]);
 
   useEffect(() => {
-    const ws = new WebSocket("ws://localhost:8080/text");
+    const ws = new WebSocket(import.meta.env.VITE_WS_URL || "ws://localhost:8080/ws");
     wsRef.current = ws;
 
     ws.onmessage = (event) => {
