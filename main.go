@@ -211,16 +211,16 @@ func main() {
 
 	hub := NewHub()
 	go hub.run()
-	addr := "127.0.0.1:" + port
-	log.Printf("Server starting on %s...", addr)
+	addr := ":" + port
+	log.Printf("Server starting on http://localhost:%s...", port)
+	http.HandleFunc("/text", func(w http.ResponseWriter, r *http.Request) {
+		serveWs(hub, w, r)
+	})
 
 	if err := http.ListenAndServe(addr, nil); err != nil {
 		log.Fatalf("Server failed: %v", err)
 	}
 
 	// Keep our WebSocket endpoint mapped
-	http.HandleFunc("/text", func(w http.ResponseWriter, r *http.Request) {
-		serveWs(hub, w, r)
-	})
 
 }
