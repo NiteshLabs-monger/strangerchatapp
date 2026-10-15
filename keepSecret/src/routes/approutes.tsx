@@ -13,7 +13,7 @@ export const router = createBrowserRouter([
    
   },
   {
-    path : "/home",
+    path : "/",
     element : <><Navbar/><StrangerChatHero/><RulesSection/></>
   }
 ],);
