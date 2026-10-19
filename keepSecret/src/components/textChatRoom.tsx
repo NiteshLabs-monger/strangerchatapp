@@ -37,7 +37,7 @@ export default function ChatRoom() {
   }, [messageArray, isTyping]);
 
   useEffect(() => {
-    const ws = new WebSocket("ws://localhost:8080/text");
+    const ws = new WebSocket("https://strangerchatapp.vercel.app/");
     wsRef.current = ws;
 
    ws.onmessage = (event) => {
