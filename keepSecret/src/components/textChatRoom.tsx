@@ -1,7 +1,9 @@
+
+
 import { useEffect, useState, useRef } from "react";
 import { TypingIndicator } from "./typingBox.tsx";
 import { Link } from "react-router-dom";
-import { Loader } from "lucide-react";
+import { Loader, Circle } from "lucide-react";
 import { ChatInput } from "./chatinput.tsx";
 import { MessageBubble } from "./messagearr.tsx";
 
@@ -10,11 +12,7 @@ interface Message {
   content: string;
   sender: "user" | "stranger";
   reactions?: Record<string, number>;
-  replyTo?: {                         // ← new
-    id: string;
-    content: string;
-    sender: "user" | "stranger";
-  };
+  replyTo?: { id: string; content: string; sender: "user" | "stranger" };
 }
 
 export default function ChatRoom() {
@@ -36,7 +34,7 @@ export default function ChatRoom() {
     scrollToBottom();
   }, [messageArray, isTyping]);
 
-  useEffect(() => {
+   useEffect(() => {
     const ws = new WebSocket("https://strangerchatapp.vercel.app/text");
     wsRef.current = ws;
 
@@ -180,86 +178,104 @@ export default function ChatRoom() {
 };
 
   return (
-    <div className="h-screen w-5/6 bg-amber-400 p-3 rounded-lg shadow-md relative flex flex-col justify-between m-auto">
-      <header className="w-full h-1/12 flex p-3 items-center justify-between bg-amber-800 rounded-lg">
-        <div className="status flex gap-1 text-[#FFE66D] font-bold">
-          {connStatus}
-          {connStatus.includes("Searching") || connStatus.includes("disconnected") ? (
-            <Loader className="animate-spin" />
-          ) : (
-            ""
+    // 1. `100dvh` instead of `h-screen` — mobile keyboard respects it
+    // 2. `w-full` on phones, `max-w-6xl` on desktop — no more `w-5/6`
+    // 3. `p-0 sm:p-3` — no padding on phones (chat fills edge to edge), padding returns on tablets
+    <div className="h-[100dvh] w-full sm:max-w-6xl bg-amber-400 sm:p-3 rounded-none sm:rounded-lg shadow-md flex flex-col mx-auto overflow-hidden">
+
+      {/* ───── Header ───── */}
+      <header className="w-full flex items-center justify-between gap-2 px-3 sm:px-4 py-2 bg-amber-800 rounded-none sm:rounded-lg shrink-0">
+        {/* status — truncated on small screens so it doesn't push the online count off */}
+        <div className="status flex items-center gap-2 text-[#FFE66D] font-bold min-w-0">
+          <span className="truncate text-sm sm:text-base">{connStatus}</span>
+          {(connStatus.includes("Searching") || connStatus.includes("disconnected")) && (
+            <Loader className="animate-spin shrink-0" size={16} />
           )}
         </div>
-        <div className="text-white font-bold">online : {activeUsers}</div>
+
+        {/* online count — always visible, never shrinks */}
+        <div className="text-white font-bold flex gap-1 items-center shrink-0">
+          <Circle className="h-3 w-3 fill-emerald-500 text-emerald-500" />
+          <span className="text-sm sm:text-base tabular-nums">{activeUsers}</span>
+        </div>
       </header>
 
-      {/* Message Feed */}
-      <div className="messages flex-1 flex flex-col gap-1 p-1 mb-1 overflow-hidden">
-  {messageArray.map((msg) => {
-    const isUser = msg.sender === "user";
+      {/* ───── Message feed ───── */}
+      <div className="messages flex-1 flex flex-col gap-1 px-2 sm:px-4 py-2 mb-1 overflow-y-auto min-h-0">
+        {messageArray.map((msg) => {
+          const isUser = msg.sender === "user";
+          return (
+            <div
+              key={msg.id}
+              id={`msg-${msg.id}`}
+              className={`group relative my-0.5 mb-2 p-2 w-fit rounded-2xl animate-[slideUp_0.25s_ease-out] max-w-[85%] sm:max-w-md lg:max-w-lg ${
+                isUser
+                  ? "self-end bg-amber-700 text-white rounded-br-none"
+                  : "self-start bg-white text-gray-800 rounded-bl-none"
+              }`}
+            >
+              <MessageBubble
+                message={msg}
+                onReact={handleReact}
+                onReply={(n) => setReplyingTo(n)}
+              />
+            </div>
+          );
+        })}
 
-    return (
-      <div
-        key={msg.id}
-        id={`msg-${msg.id}`}
-        className={`group relative my-0.5 mb-2 p-2 w-fit max-w-md rounded-2xl animate-[slideUp_0.25s_ease-out] ${
-          isUser
-            ? "ms-auto bg-amber-700 text-white rounded-br-none"
-            : "me-auto bg-white text-gray-800 rounded-bl-none"
-        }`}
-      >
-        <MessageBubble
-         key={msg.id} 
-         message={msg}
-         onReact={handleReact}
-         onReply={(n) =>{setReplyingTo(n)}}  />
-      </div>
-    );
-  })}
+        {isTyping && (
+          <div className="self-start px-2 py-1 bg-white rounded-2xl rounded-bl-none shadow-sm">
+            <TypingIndicator />
+          </div>
+        )}
 
-
-        {isTyping && <TypingIndicator />}
         <div ref={messagesEndRef} />
       </div>
+
+      {/* ───── Reply preview ───── */}
       {replyingTo && (
-  <div className="flex items-center gap-2 px-3 py-2 mb-1 bg-amber-200/70 rounded-md border-l-4 border-amber-700">
-    <div className="flex-1 min-w-0">
-      <div className="text-xs font-bold text-amber-900">
-        {replyingTo.sender === "user" ? "You" : "Stranger"}
-      </div>
-      <div className="text-sm text-gray-800 truncate">
-        {replyingTo.content}
-      </div>
-    </div>
-    <button
-      type="button"
-      onClick={() => setReplyingTo(null)}
-      className="text-amber-900 font-bold text-lg px-2"
-      title="Cancel reply"
-    >
-      ✕
-    </button>
-  </div>
-)}
+        <div className="flex items-center gap-2 mx-2 sm:mx-4 mb-1 px-3 py-2 bg-amber-200/70 rounded-md border-l-4 border-amber-700 shrink-0">
+          <div className="flex-1 min-w-0">
+            <div className="text-xs font-bold text-amber-900">
+              {replyingTo.sender === "user" ? "You" : "Stranger"}
+            </div>
+            <div className="text-sm text-gray-800 truncate">{replyingTo.content}</div>
+          </div>
+          <button
+            type="button"
+            onClick={() => setReplyingTo(null)}
+            className="text-amber-900 font-bold text-lg px-2 shrink-0"
+            title="Cancel reply"
+          >
+            ✕
+          </button>
+        </div>
+      )}
 
+      {/* ───── Composer ───── */}
+      {/* Mobile: buttons on top row, input below full-width.
+          Desktop (sm+): buttons left, input fills remaining space. */}
+      <div className="flex flex-col sm:flex-row sm:items-center gap-2 p-2 sm:p-3 border-t border-amber-500/40 shrink-0">
+        <div className="flex gap-2 sm:gap-2">
+          <button
+            type="button"
+            onClick={handleSkip}
+            className="flex-1 sm:flex-none h-10 px-4 rounded-md bg-red-600 hover:bg-red-700 text-white text-sm font-medium transition-colors"
+          >
+            Skip
+          </button>
+          <button
+            type="button"
+            className="flex-1 sm:flex-none h-10 px-4 rounded-md bg-[#CBF3F0] hover:bg-[#b8e6e2] text-gray-800 text-sm font-medium transition-colors"
+            onClick={() => setActiveUsers(activeUsers - 1)}
+          >
+            <Link to="/">Leave</Link>
+          </button>
+        </div>
 
-      <div className="message flex items-center gap-2">
-        <button
-          type="button"
-          onClick={handleSkip}
-          className="h-10 px-4 rounded-md bg-red-600 flex items-center text-white text-center"
-        >
-          Skip
-        </button>
-        <button
-          type="button"
-          className="bg-[#CBF3F0] h-10 px-4 rounded-md flex items-center text-gray-800 text-center"
-          onClick={() => setActiveUsers(activeUsers - 1)}
-        >
-          <Link to="/home">Leave</Link>
-        </button>
-
-        <ChatInput onSend={handleSendMessage} onChange={handleInputChange} />
+        <div className="flex-1 min-w-0">
+          <ChatInput onSend={handleSendMessage} onChange={handleInputChange} />
+        </div>
       </div>
     </div>
   );

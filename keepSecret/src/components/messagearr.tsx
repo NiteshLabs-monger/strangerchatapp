@@ -66,12 +66,12 @@ export const MessageBubble = ({ message, onReact,onReply }: MessageProps) => {
       )}
 
       {/* Action Button: Shows on Hover */}
-     <div className="absolute -right-9 top-2 flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-  <button onClick={() => onReply(message)} title="Reply" className="p-1 rounded-full bg-white/80 border border-black">
-    <Reply size={14} />
+     <div className="absolute -right-17 top-2 flex  gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+  <button onClick={() => onReply(message)} title="Reply" className="p-1 rounded-full ">
+    <Reply size={20} className="text-amber-800" />
   </button>
-  <button onClick={() => setShowPicker((v) => !v)} title="React" className="p-1 rounded-full bg-white/80 border border-black">
-    <FaceSlightlySmiling size={14} />
+  <button onClick={() => setShowPicker((v) => !v)} title="React" className="p-1 rounded-full ">
+    <FaceSlightlySmiling size={24}  className="text-amber-800"/>
   </button>
 </div>
 
