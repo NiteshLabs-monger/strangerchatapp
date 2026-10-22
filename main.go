@@ -221,6 +221,4 @@ func main() {
 		log.Fatalf("Server failed: %v", err)
 	}
 
-	// Keep our WebSocket endpoint mapped
-
 }

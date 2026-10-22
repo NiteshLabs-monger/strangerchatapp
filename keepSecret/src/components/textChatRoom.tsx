@@ -1,5 +1,4 @@
 
-
 import { useEffect, useState, useRef } from "react";
 import { TypingIndicator } from "./typingBox.tsx";
 import { Link } from "react-router-dom";
@@ -11,7 +10,7 @@ interface Message {
   id: string;
   content: string;
   sender: "user" | "stranger";
-  reactions?: Record<string, number>;
+  reactions?: {user?:string,stranger?:string}
   replyTo?: { id: string; content: string; sender: "user" | "stranger" };
 }
 
@@ -73,17 +72,18 @@ export default function ChatRoom() {
         return;
 
       case "reaction": {
-        setMessageArray((prev) =>
+        
+         setMessageArray((prev) =>
           prev.map((msg) => {
           
             if (msg.id !== data.messageId) return msg;
           
-            const current = msg.reactions ?? {};
+           const current = msg.reactions ?? {};
             return {
               ...msg,
               reactions: {
                 ...current,
-                [data.emoji]: (current[data.emoji] ?? 0) + 1,
+                stranger:data.emoji
               },
             };
           })
@@ -105,6 +105,25 @@ export default function ChatRoom() {
           },
         ]);
         return;
+
+      case "remove-reaction" :
+         setMessageArray((prev) =>
+          prev.map((msg) => {
+          
+            if (msg.id !== data.messageId) return msg;
+          
+           const current = msg.reactions ?? {};
+            return {
+              ...msg,
+              reactions: {
+                ...current,
+                stranger:undefined
+              },
+            };
+          })
+        );
+        return;
+
 
       default:
         console.log("unknown JSON event:", data);
@@ -168,19 +187,35 @@ export default function ChatRoom() {
       const current = m.reactions ?? {};
       return {
         ...m,
-        reactions: { ...current, [emoji]: (current[emoji] ?? 0) + 1 },
+        reactions: {...current, user : emoji},
       };
     })
   );
 
   wsRef.current.send(JSON.stringify({ type: "reaction", messageId, emoji }));
-  console.log("messsage sent")
+
 };
 
-  return (
-    // 1. `100dvh` instead of `h-screen` — mobile keyboard respects it
-    // 2. `w-full` on phones, `max-w-6xl` on desktop — no more `w-5/6`
-    // 3. `p-0 sm:p-3` — no padding on phones (chat fills edge to edge), padding returns on tablets
+ const removeReaction = (messageId: string) => {
+  if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) return;
+
+   setMessageArray(prev =>
+    prev.map(m => {
+      if (m.id !== messageId) return m;
+      const current = m.reactions ?? {};
+      return {
+        ...m,
+        reactions: { ...current, user: ""},
+      };
+    })
+  );
+
+
+  wsRef.current.send(JSON.stringify({ type: "remove-reaction", messageId }));
+
+};
+
+  return(
     <div className="h-[100dvh] w-full sm:max-w-6xl bg-amber-400 sm:p-3 rounded-none sm:rounded-lg shadow-md flex flex-col mx-auto overflow-hidden">
 
       {/* ───── Header ───── */}
@@ -189,19 +224,19 @@ export default function ChatRoom() {
         <div className="status flex items-center gap-2 text-[#FFE66D] font-bold min-w-0">
           <span className="truncate text-sm sm:text-base">{connStatus}</span>
           {(connStatus.includes("Searching") || connStatus.includes("disconnected")) && (
-            <Loader className="animate-spin shrink-0" size={16} />
+            <Loader className="animate-spin shrink-0" size={24} />
           )}
         </div>
 
         {/* online count — always visible, never shrinks */}
         <div className="text-white font-bold flex gap-1 items-center shrink-0">
-          <Circle className="h-3 w-3 fill-emerald-500 text-emerald-500" />
+          <Circle className="h-3 w-3 fill-emerald-500 text-emerald-500 animate-pulse" />
           <span className="text-sm sm:text-base tabular-nums">{activeUsers}</span>
         </div>
       </header>
 
       {/* ───── Message feed ───── */}
-      <div className="messages flex-1 flex flex-col gap-1 px-2 sm:px-4 py-2 mb-1 overflow-y-auto min-h-0">
+      <div className="messages flex-1 flex flex-col gap-1 px-2 sm:px-4 py-2 mb-1 overflow-hidden min-h-0">
         {messageArray.map((msg) => {
           const isUser = msg.sender === "user";
           return (
@@ -218,13 +253,14 @@ export default function ChatRoom() {
                 message={msg}
                 onReact={handleReact}
                 onReply={(n) => setReplyingTo(n)}
+                removeReaction={removeReaction}
               />
             </div>
           );
         })}
 
         {isTyping && (
-          <div className="self-start px-2 py-1 bg-white rounded-2xl rounded-bl-none shadow-sm">
+          <div className="self-start px-2 bg-white rounded-2xl rounded-bl-none shadow-sm">
             <TypingIndicator />
           </div>
         )}
@@ -264,7 +300,7 @@ export default function ChatRoom() {
           >
             Skip
           </button>
-          <button
+           <button
             type="button"
             className="flex-1 sm:flex-none h-10 px-4 rounded-md bg-[#CBF3F0] hover:bg-[#b8e6e2] text-gray-800 text-sm font-medium transition-colors"
             onClick={() => setActiveUsers(activeUsers - 1)}
@@ -272,11 +308,17 @@ export default function ChatRoom() {
             <Link to="/">Leave</Link>
           </button>
         </div>
+          
+
+
+
 
         <div className="flex-1 min-w-0">
           <ChatInput onSend={handleSendMessage} onChange={handleInputChange} />
         </div>
       </div>
     </div>
+
+  
   );
 }

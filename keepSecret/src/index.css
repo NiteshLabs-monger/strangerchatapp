@@ -1,4 +1,11 @@
 @import "tailwindcss";
+/* Touch devices: make the reply/react buttons always visible */
+@media (hover: none) and (pointer: coarse) {
+  .group:hover .group-hover\:opacity-100,
+  .group .group-hover\:opacity-100 {
+    opacity: 1 !important;
+  }
+}
 @keyframes slideUp { 
     from { 
         opacity: 0;

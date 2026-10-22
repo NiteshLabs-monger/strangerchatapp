@@ -24,7 +24,7 @@ export const EmojiPickerPopover = ({ onSelect, onClose, positionClass = "bottom-
               onSelect(emoji);
               onClose();
             }}
-            className="p-1.5  rounded-md text-xl tr*ansition-transform hover:scale-125 active:scale-95 text-center"
+            className="p-1.5 rounded-md text-xl tr*ansition-transform hover:scale-125 active:scale-95 text-center"
           >
             {emoji}
           </button>
