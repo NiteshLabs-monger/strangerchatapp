@@ -5,14 +5,7 @@ import { Link } from "react-router-dom";
 import { Loader, Circle } from "lucide-react";
 import { ChatInput } from "./chatinput.tsx";
 import { MessageBubble } from "./messagearr.tsx";
-
-interface Message {
-  id: string;
-  content: string;
-  sender: "user" | "stranger";
-  reactions?: {user?:string,stranger?:string}
-  replyTo?: { id: string; content: string; sender: "user" | "stranger" };
-}
+import { type Message} from "../../types/type.ts"
 
 export default function ChatRoom() {
   const [messageArray, setMessageArray] = useState<Message[]>([]);
@@ -20,6 +13,7 @@ export default function ChatRoom() {
   const [connStatus, setConnStatus] = useState<string>("Searching for a stranger...");
   const [activeUsers, setActiveUsers] = useState<number>(0);
   const [replyingTo, setReplyingTo] = useState<Message | null>(null);
+  const [sendDisable,setSendDisable] = useState<boolean>(true);
 
   const wsRef = useRef<WebSocket | null>(null);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
@@ -50,11 +44,15 @@ export default function ChatRoom() {
   if (
     event.data.includes("disconnected") ||
     event.data.includes("left") ||
-    event.data.includes("Searching") ||
-    event.data === "Connected to a random stranger! Say hi!"
+    event.data.includes("Searching") 
   ) {
     setConnStatus(event.data);
     return;
+  }
+
+  if(event.data ==="Connected to a random stranger! Say hi!"){
+    setConnStatus(event.data)
+    setSendDisable(false)
   }
 
   // Try JSON first
@@ -314,7 +312,7 @@ export default function ChatRoom() {
 
 
         <div className="flex-1 min-w-0">
-          <ChatInput onSend={handleSendMessage} onChange={handleInputChange} />
+          <ChatInput onSend={handleSendMessage} onChange={handleInputChange}  sendDisable={sendDisable}/>
         </div>
       </div>
     </div>

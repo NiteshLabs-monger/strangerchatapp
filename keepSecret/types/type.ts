@@ -1,11 +1,7 @@
-// types.ts
-export type SenderType = 'user' | 'stranger' | 'system';
-
-export interface Message {
+ export interface Message {
   id: string;
-  sender: SenderType;
-  text: string;
-  timestamp: string;
+  content: string;
+  sender: "user" | "stranger";
+  reactions?: {user?:string,stranger?:string}
+  replyTo?: { id: string; content: string; sender: "user" | "stranger" };
 }
-
-export type ChatState = 'idle' | 'searching' | 'chatting';

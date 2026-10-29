@@ -4,9 +4,10 @@ import { EmojiPickerPopover } from './emojipicker';
 interface ChatInputProps {
   onSend: (text: string) => void;
   onChange: (text: string) => void;
+  sendDisable:boolean;
 }
 
-export const ChatInput = ({ onSend, onChange }: ChatInputProps) => {
+export const ChatInput = ({ onSend, onChange ,sendDisable}: ChatInputProps) => {
   const [text, setText] = useState('');
   const [showPicker, setShowPicker] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -56,7 +57,7 @@ export const ChatInput = ({ onSend, onChange }: ChatInputProps) => {
         value={text}
         onChange={handleTextChange}
         onKeyDown={(e) => {
-          if (e.key === 'Enter') {
+          if (e.key === 'Enter' && !sendDisable) {
             e.preventDefault();
             handleSendAction();
           }
@@ -68,6 +69,7 @@ export const ChatInput = ({ onSend, onChange }: ChatInputProps) => {
       <button
         type="button"
         onClick={handleSendAction}
+        disabled={sendDisable}
         className="bg-[#DE1A1A] hover:bg-amber-800 text-white px-4 py-2 rounded-md text-sm font-medium transition"
       >
         Send
