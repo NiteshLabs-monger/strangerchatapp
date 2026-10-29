@@ -214,7 +214,7 @@ export default function ChatRoom() {
 };
 
   return(
-    <div className="h-[100dvh] w-full sm:max-w-6xl bg-amber-400 sm:p-3 rounded-none sm:rounded-lg shadow-md flex flex-col mx-auto overflow-hidden">
+    <div className="h-[100dvh] w-full sm:max-w-6xl bg-amber-400 sm:p-3 rounded-none sm:rounded-lg shadow-md flex flex-col mx-auto overflow-y-auto">
 
       {/* ───── Header ───── */}
       <header className="w-full flex items-center justify-between gap-2 px-3 sm:px-4 py-2 bg-amber-800 rounded-none sm:rounded-lg shrink-0">
@@ -234,17 +234,17 @@ export default function ChatRoom() {
       </header>
 
       {/* ───── Message feed ───── */}
-      <div className="messages flex-1 flex flex-col gap-1 px-2 sm:px-4 py-2 mb-1 overflow-hidden min-h-0">
+      <div className="messages flex-1 flex flex-col gap-1 px-2 sm:px-4 py-2 mb-1 overflow-y-auto overflow-x-hidden min-h-0">
         {messageArray.map((msg) => {
           const isUser = msg.sender === "user";
           return (
             <div
               key={msg.id}
               id={`msg-${msg.id}`}
-              className={`group relative my-0.5 mb-2 p-2 w-fit rounded-2xl animate-[slideUp_0.25s_ease-out] max-w-[85%] sm:max-w-md lg:max-w-lg ${
+              className={`group relative flex my-0.5 mb-2 gap-1 animate-[slideUp_0.25s_ease-out] max-w-[85%] sm:max-w-md lg:max-w-lg ${
                 isUser
-                  ? "self-end bg-amber-700 text-white rounded-br-none"
-                  : "self-start bg-white text-gray-800 rounded-bl-none"
+                  ? "self-end"
+                  : "self-start"
               }`}
             >
               <MessageBubble
@@ -268,7 +268,7 @@ export default function ChatRoom() {
 
       {/* ───── Reply preview ───── */}
       {replyingTo && (
-        <div className="flex items-center gap-2 mx-2 sm:mx-4 mb-1 px-3 py-2 bg-amber-200/70 rounded-md border-l-4 border-amber-700 shrink-0">
+        <div className="flex items-center animate-quote-in gap-2 mx-2 sm:mx-4 mb-1 px-3 py-2 bg-amber-200/70 rounded-md border-l-4 border-amber-700 shrink-0">
           <div className="flex-1 min-w-0">
             <div className="text-xs font-bold text-amber-900">
               {replyingTo.sender === "user" ? "You" : "Stranger"}

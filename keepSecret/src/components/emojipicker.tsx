@@ -13,9 +13,9 @@ export const EmojiPickerPopover = ({ onSelect, onClose, positionClass = "bottom-
   return (
     <>
       {/* Click outside backdrop */}
-      <div className="fixed inset-0 z-40" onClick={onClose} />
+      <div className="fixed inset-0 z-40 " onClick={onClose} />
 
-      <div className={`absolute z-50 p-2 bg-amber-800 border  rounded-xl shadow-xl grid grid-cols-6 gap-1 w-52 backdrop-blur-md ${positionClass}`}>
+      <div className={`absolute  p-2 bg-amber-800   rounded-2xl shadow-xl grid grid-cols-6 gap-1 w-52 backdrop-blur-md ${positionClass}`}>
         {QUICK_EMOJIS.map((emoji) => (
           <button
             key={emoji}
