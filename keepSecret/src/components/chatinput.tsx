@@ -8,6 +8,7 @@ interface ChatInputProps {
 }
 
 export const ChatInput = ({ onSend, onChange ,sendDisable}: ChatInputProps) => {
+  const MAXWORDS = 50;
   const [text, setText] = useState('');
   const [showPicker, setShowPicker] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -25,11 +26,23 @@ export const ChatInput = ({ onSend, onChange ,sendDisable}: ChatInputProps) => {
     inputRef.current?.focus();
   };
 
-  const handleSendAction = () => {
-    if (!text.trim()) return;
-    onSend(text);
-    setText(''); // Clear input after sending
-  };
+ 
+const handleSendAction = () => {
+  const wordcount = text.trim()
+    ? text.trim().split(/\s+/).length
+    : 0;
+
+  if (wordcount > MAXWORDS || !text.trim()) {
+    if (wordcount > MAXWORDS) {
+      alert("Message limit reached! You can only send 50 words at a time.");
+    }
+    return;
+  }
+
+  onSend(text);
+  setText('');
+};
+
 
   return (
     <div className="relative flex items-center gap-2 flex-1">

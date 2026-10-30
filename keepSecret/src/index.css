@@ -1,4 +1,5 @@
 @import "tailwindcss";
+
 /* Touch devices: make the reply/react buttons always visible */
 @media (hover: none) and (pointer: coarse) {
   .group:hover .group-hover\:opacity-100,
@@ -71,4 +72,16 @@
 .animate-emoji-picker-in {
   animation: emoji-picker-in 180ms ease-out both;
   transform-origin: top right;
+}
+
+@font-face {
+  font-family: 'Cascadia Code';
+  src: url('../public/fonts/CascadiaCode-Bold.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@theme {
+  --font-cascadia: "Cascadia Code", monospace;
 }
