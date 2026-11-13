@@ -7,7 +7,9 @@
 }
 
 export interface reactionProps {
+  children: React.ReactNode;
   message:Message;
    onReact: (messageId: string, emoji: string) => void;
   onReply: (msg: Message) => void; 
 }
+

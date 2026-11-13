@@ -6,6 +6,7 @@ import { Loader, Circle } from "lucide-react";
 import { ChatInput } from "./chatinput.tsx";
 import { MessageBubble } from "./messagearr.tsx";
 import { type Message} from "../../types/type.ts"
+import ReactionWrapper from "./reactionwrapper.tsx";
 
 export default function ChatRoom() {
   const [messageArray, setMessageArray] = useState<Message[]>([]);
@@ -14,6 +15,7 @@ export default function ChatRoom() {
   const [activeUsers, setActiveUsers] = useState<number>(0);
   const [replyingTo, setReplyingTo] = useState<Message | null>(null);
   const [sendDisable,setSendDisable] = useState<boolean>(true);
+   
 
   const wsRef = useRef<WebSocket | null>(null);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
@@ -22,6 +24,8 @@ export default function ChatRoom() {
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
+
+  
 
   useEffect(() => {
     scrollToBottom();
@@ -248,12 +252,17 @@ export default function ChatRoom() {
                   : "self-start"
               }`}
             >
-              <MessageBubble
+              <ReactionWrapper 
                 message={msg}
                 onReact={handleReact}
                 onReply={(n) => setReplyingTo(n)}
+
+              >
+              <MessageBubble
+                message={msg}
                 removeReaction={removeReaction}
               />
+              </ReactionWrapper>
             </div>
           );
         })}

@@ -83,7 +83,7 @@ const handleSendAction = () => {
         type="button"
         onClick={handleSendAction}
         disabled={sendDisable}
-        className="bg-[#DE1A1A] hover:bg-amber-800 text-white px-4 py-2 rounded-md text-sm font-medium transition"
+        className="bg-[#DE1A1A]  text-white px-4 py-2 rounded-md text-sm font-medium transition"
       >
         Send
       </button>
