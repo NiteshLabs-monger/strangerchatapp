@@ -32,7 +32,7 @@ export default function ChatRoom() {
   }, [messageArray, isTyping]);
 
    useEffect(() => {
-    const ws = new WebSocket("https://strangerchatapp.vercel.app/text");
+     const ws = new WebSocket("https://strangerchatapp-2.onrender.com/text");
     wsRef.current = ws;
 
    ws.onmessage = (event) => {
@@ -56,7 +56,8 @@ export default function ChatRoom() {
 
   if(event.data.includes("Connected")){
     setConnStatus(event.data)
-    setSendDisable(false)
+    setSendDisable(false);
+    return;
   }
 
   // Try JSON first
@@ -126,6 +127,12 @@ export default function ChatRoom() {
         );
         return;
 
+        case "skip":
+        setMessageArray([]);
+        setIsTyping(false);
+        setConnStatus("Searching for a stranger...");
+        return;
+
 
       default:
         console.log("unknown JSON event:", data);
@@ -149,6 +156,10 @@ export default function ChatRoom() {
     }
   };
 
+  const generateId = () =>
+    typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+      ? crypto.randomUUID()
+      : `${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
   const handleSkip = () => {
     if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
       wsRef.current.send("/skip");
@@ -164,7 +175,7 @@ export default function ChatRoom() {
   if (!textToSend.trim()) return;
   if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) return;
 
-  const id = crypto.randomUUID();
+  const id = generateId();
   const replyTo = replyingTo
     ? { id: replyingTo.id, content: replyingTo.content, sender: replyingTo.sender }
     : undefined;

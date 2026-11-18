@@ -1,6 +1,6 @@
 import type { Message } from '../../types/type';
 import Reaction from './reaction';
-import SwipeToReply from './swipetoreply';
+import SwipeToReply from '../mobilecomponents/swipetoreply';
 
 interface ReactionWrapperProps {
   message: Message;
