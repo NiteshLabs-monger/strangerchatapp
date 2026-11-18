@@ -54,7 +54,7 @@ export default function ChatRoom() {
     return;
   }
 
-  if(event.data ==="Connected to a random stranger! Say hi!"){
+  if(event.data.includes("Connected")){
     setConnStatus(event.data)
     setSendDisable(false)
   }

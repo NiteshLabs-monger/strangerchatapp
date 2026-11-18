@@ -3,6 +3,7 @@ import { MessageSquare, Video, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 export const StrangerChatHero: React.FC = () => {
   const [chatType, setChatType] = useState<'video' | 'text'>('video');
+  
 
   return (
     <div className="relative min-h-screen bg-neutral-950 text-white overflow-hidden flex flex-col justify-between">
