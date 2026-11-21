@@ -70,7 +70,7 @@ export default function WhatsAppMessageWrapper({ children, message, onReply, onR
       }
     }
 
-    if (isHorizontalSwipe.current && diffX > 0) {
+    if (isHorizontalSwipe.current && Math.abs(diffX) > 0) {
       const newTranslateX = Math.min(diffX * 0.65, 100);
       setTranslateX(newTranslateX);
     }

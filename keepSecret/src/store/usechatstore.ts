@@ -40,18 +40,20 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
     connect: (url: string) => {
         // Prevent duplicate connections in React StrictMode
+        const ws = new WebSocket(url);
         const existingWs = get().ws;
         if (existingWs && existingWs.readyState === WebSocket.OPEN) {
             return;
         }
 
-        const ws = new WebSocket(url);
+        
 
         ws.onopen = () => {
             set({ connStatus: 'Searching for a stranger...' });
         };
 
         ws.onmessage = (event) => {
+            console.log('DEBUG INCOMING:', event.data);
             if (typeof event.data === 'string') {
                 // 1. Typing indicator ping
                 if (event.data === 'typing') {
@@ -161,6 +163,9 @@ export const useChatStore = create<ChatState>((set, get) => ({
         };
 
         ws.onclose = () => {
+            // ONLY clear state if THIS closing socket is still the active one in the store
+            if (get().ws !== ws) return;
+
             set({
                 ws: null,
                 sendDisable: true,
@@ -174,9 +179,8 @@ export const useChatStore = create<ChatState>((set, get) => ({
     disconnect: () => {
         const { ws } = get();
         if (typingTimeout) clearTimeout(typingTimeout);
-        if (ws) {
-            ws.close();
-        }
+
+        // Set ws: null FIRST so ws.onclose ignores this intentional close
         set({
             ws: null,
             messages: [],
@@ -184,9 +188,14 @@ export const useChatStore = create<ChatState>((set, get) => ({
             replyingTo: null,
             sendDisable: true,
         });
+
+        if (ws && ws.readyState !== WebSocket.CLOSED) {
+            ws.close();
+        }
     },
 
     sendMessage: (textToSend: string) => {
+        console.log('DEBUG SEND:', { textToSend, ws: get().ws, readyState: get().ws?.readyState, sendDisable: get().sendDisable });
         const { ws, replyingTo } = get();
         if (!textToSend.trim()) return;
         if (!ws || ws.readyState !== WebSocket.OPEN) return;
@@ -276,4 +285,9 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
         ws.send(JSON.stringify({ type: 'remove-reaction', messageId }));
     },
+}));
+
+export const useTouchDeviceStore = create<{ isTouchDevice: boolean; setIsTouchDevice: (value: boolean) => void }>((set) => ({
+    isTouchDevice: false,
+    setIsTouchDevice: (value) => set({ isTouchDevice: value }),
 }));

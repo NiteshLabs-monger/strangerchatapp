@@ -5,7 +5,8 @@ import { Loader, Circle } from 'lucide-react';
 import { ChatInput } from './chatinput.tsx';
 import { MessageBubble } from './messagearr.tsx';
 import ReactionWrapper from './reactionwrapper.tsx';
-import { useChatStore } from '../store/usechatstore.ts';
+import { useChatStore, useTouchDeviceStore } from '../store/usechatstore.ts';
+import ConnStatusBar from '../mobilecomponents/connstatusbar.tsx';
 
 export default function ChatRoom() {
   const messages = useChatStore((s) => s.messages);
@@ -14,6 +15,7 @@ export default function ChatRoom() {
   const activeUsers = useChatStore((s) => s.activeUsers);
   const replyingTo = useChatStore((s) => s.replyingTo);
   const sendDisable = useChatStore((s) => s.sendDisable);
+  const isTouchDevice = useTouchDeviceStore((s) => s.isTouchDevice);
 
   const connect = useChatStore((s) => s.connect);
   const disconnect = useChatStore((s) => s.disconnect);
@@ -28,13 +30,12 @@ export default function ChatRoom() {
   useEffect(() => {
     // Use VITE_WS_URL from .env or fallback to your backend WebSocket URL
     const wsUrl =
-      import.meta.env.VITE_WS_URL || 'https://strangerchatapp-2.onrender.com/text';
+      import.meta.env.VITE_WS_URL ;
     connect(wsUrl);
-    console.log('Connecting to WebSocket at:', wsUrl);
+    
 
     return () => {
       disconnect();
-      console.log('Disconnected from WebSocket');
     };
   }, [connect, disconnect]);
 
@@ -45,22 +46,24 @@ export default function ChatRoom() {
   return (
     <div className="h-[100dvh] font-cascadia w-full sm:max-w-6xl bg-amber-400 sm:p-3 rounded-none sm:rounded-lg shadow-md flex flex-col mx-auto overflow-y-auto">
       {/* ───── Header ───── */}
-      <header className="w-full flex items-center justify-between gap-2 px-3 sm:px-4 py-2 bg-amber-800 rounded-none sm:rounded-lg shrink-0">
-        <div className="status flex items-center gap-2 text-[#FFE66D] font-bold min-w-0">
-          <span className="truncate text-sm sm:text-base">{connStatus}</span>
-          {(connStatus.includes('Searching') ||
-            connStatus.includes('disconnected')) && (
-              <Loader className="animate-spin shrink-0" size={24} />
-            )}
-        </div>
+      {isTouchDevice ? 
+      (<ConnStatusBar />) : (
+          <header className="w-full flex items-center justify-between gap-2 px-3 sm:px-4 py-2 bg-amber-800 rounded-full sm:rounded-lg shrink-0">
+            <div className="status flex items-center gap-2 text-[#FFE66D] font-bold min-w-0">
+              <span className="truncate text-sm sm:text-base">{connStatus}</span>
+              {(connStatus.includes('Searching') ||
+                connStatus.includes('disconnected')) && (
+                  <Loader className="animate-spin shrink-0" size={24} />
+                )}
+            </div>
 
-        <div className="text-white font-bold flex gap-1 items-center shrink-0">
-          <Circle className="h-3 w-3 fill-emerald-500 text-emerald-500 animate-pulse" />
-          <span className="text-sm sm:text-base tabular-nums">
-            {activeUsers}
-          </span>
-        </div>
-      </header>
+            <div className="text-white font-bold flex gap-1 items-center shrink-0">
+              <Circle className="h-3 w-3 fill-emerald-500 text-emerald-500 animate-pulse" />
+              <span className="text-sm sm:text-base tabular-nums">
+                {activeUsers}
+              </span>
+            </div>
+          </header>)}
 
       {/* ───── Message feed ───── */}
       <div className="messages flex-1 flex flex-col gap-1 px-2 sm:px-4 py-2 mb-1 overflow-y-auto scrollbar-none overflow-x-hidden min-h-0">
@@ -70,7 +73,7 @@ export default function ChatRoom() {
             <div
               key={msg.id}
               id={`msg-${msg.id}`}
-              className={`group relative flex my-0.5 mb-2 gap-1 animate-[slideUp_0.25s_ease-out] scrollbar-none max-w-[85%] sm:max-w-md lg:max-w-lg ${isUser ? 'self-end' : 'self-start'
+              className={`group relative flex my-0.5 ${isTouchDevice ? 'mb-2' : 'mb-0.5'} gap-1 animate-[slideUp_0.25s_ease-out] scrollbar-none max-w-[85%] sm:max-w-md lg:max-w-lg ${isUser ? 'self-end' : 'self-start'
                 }`}
             >
               <ReactionWrapper
