@@ -1,13 +1,14 @@
 import React, { useState, useRef } from 'react';
 import { EmojiPickerPopover } from './emojipicker';
+import {useTouchDeviceStore} from '../store/usechatstore.ts';
 
 interface ChatInputProps {
   onSend: (text: string) => void;
   onChange: (text: string) => void;
-  sendDisable:boolean;
+  sendDisable: boolean;
 }
 
-export const ChatInput = ({ onSend, onChange ,sendDisable}: ChatInputProps) => {
+export const ChatInput = ({ onSend, onChange, sendDisable }: ChatInputProps) => {
   const MAXWORDS = 50;
   const [text, setText] = useState('');
   const [showPicker, setShowPicker] = useState(false);
@@ -26,27 +27,27 @@ export const ChatInput = ({ onSend, onChange ,sendDisable}: ChatInputProps) => {
     inputRef.current?.focus();
   };
 
- 
-const handleSendAction = () => {
-  const wordcount = text.trim()
-    ? text.trim().split(/\s+/).length
-    : 0;
 
-  if (wordcount > MAXWORDS || !text.trim()) {
-    if (wordcount > MAXWORDS) {
-      alert("Message limit reached! You can only send 50 words at a time.");
+  const handleSendAction = () => {
+    const wordcount = text.trim()
+      ? text.trim().split(/\s+/).length
+      : 0;
+
+    if (wordcount > MAXWORDS || !text.trim()) {
+      if (wordcount > MAXWORDS) {
+        alert("Message limit reached! You can only send 50 words at a time.");
+      }
+      return;
     }
-    return;
-  }
 
-  onSend(text);
-  setText('');
-};
+    onSend(text);
+    setText('');
+  };
 
 
   return (
     <div className="relative flex items-center gap-2 flex-1">
-      <div className="relative">
+      {useTouchDeviceStore.getState().isTouchDevice ? "" : (<div className="relative">
         <button
           type="button"
           onClick={() => setShowPicker(!showPicker)}
@@ -62,7 +63,7 @@ const handleSendAction = () => {
             positionClass="bottom-12 left-0"
           />
         )}
-      </div>
+      </div>)}
 
       <input
         ref={inputRef}
@@ -83,7 +84,7 @@ const handleSendAction = () => {
         type="button"
         onClick={handleSendAction}
         disabled={sendDisable}
-        className="bg-[#DE1A1A]  text-white px-4 py-2 rounded-md text-sm font-medium transition"
+        className="bg-[#DE1A1A] disabled:opacity-40 disabled:cursor-not-allowed text-white px-4 py-2 rounded-md text-sm font-medium transition"
       >
         Send
       </button>

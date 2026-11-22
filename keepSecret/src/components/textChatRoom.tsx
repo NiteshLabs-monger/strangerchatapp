@@ -66,14 +66,14 @@ export default function ChatRoom() {
           </header>)}
 
       {/* ───── Message feed ───── */}
-      <div className="messages flex-1 flex flex-col gap-1 px-2 sm:px-4 py-2 mb-1 overflow-y-auto scrollbar-none overflow-x-hidden min-h-0">
+      <div className="messages flex-1 flex flex-col gap-1 px-2 sm:px-4 py-2 mb-0.5 overflow-y-auto scrollbar-none overflow-x-hidden min-h-0">
         {messages.map((msg) => {
           const isUser = msg.sender === 'user';
           return (
             <div
               key={msg.id}
               id={`msg-${msg.id}`}
-              className={`group relative flex my-0.5 ${isTouchDevice ? 'mb-2' : 'mb-0.5'} gap-1 animate-[slideUp_0.25s_ease-out] scrollbar-none max-w-[85%] sm:max-w-md lg:max-w-lg ${isUser ? 'self-end' : 'self-start'
+              className={`group relative flex my-0.5 ${isTouchDevice ? 'mb-0.5' : 'mb-2'} gap-1 animate-[slideUp_0.25s_ease-out] scrollbar-none max-w-[85%] sm:max-w-md lg:max-w-lg ${isUser ? 'self-end' : 'self-start'
                 }`}
             >
               <ReactionWrapper
