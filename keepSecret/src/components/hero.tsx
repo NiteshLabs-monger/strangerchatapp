@@ -22,13 +22,7 @@ export const StrangerChatHero: React.FC = () => {
 
       {/* Main Hero Content */}
       <main className="relative z-10 max-w-5xl mx-auto px-6 py-12 text-center flex-1 flex flex-col justify-center items-center">
-        {/* Live Counter Badge */}
-        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-neutral-900/80 border border-neutral-800 backdrop-blur-md mb-8">
-          <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
-          <span className="text-xs font-semibold tracking-wide text-neutral-300">
-            <strong className="text-white">42,891</strong> Strangers Online Now
-          </span>
-        </div>
+       
 
         {/* Heading */}
         <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight leading-[1.1] mb-6">

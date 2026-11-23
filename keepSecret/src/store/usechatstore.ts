@@ -157,6 +157,15 @@ export const useChatStore = create<ChatState>((set, get) => ({
                     }));
                     break;
 
+                case "Stranger has disconnected":
+                    set((state) => ({
+                        messages: [],
+                        isTyping: false,
+                        replyingTo: null,
+                        sendDisable: true,
+                        connStatus: 'Searching for a stranger...',
+                    }));
+
                 default:
                     console.log('Unknown JSON event:', data);
             }

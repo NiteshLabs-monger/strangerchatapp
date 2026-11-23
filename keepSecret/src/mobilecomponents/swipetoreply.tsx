@@ -122,26 +122,32 @@ export default function WhatsAppMessageWrapper({
     : {};
 
   return (
-    <div className="relative w-full max-w-sm my-0.5 select-none">
+    <div className="relative w-full max-w-sm  select-none">
       {/* 1. Emoji Reaction Menu */}
       {showEmojiBar && (
-        <>
-          <div className="fixed inset-0 z-10" onClick={() => setShowEmojiBar(false)} />
-          <div className="absolute -top-14 left-0 z-20 flex gap-2 bg-amber-800 px-3 py-1.5 rounded-full shadow-xl animate-in fade-in zoom-in-95 duration-150">
-            {['👍', '❤️', '😂', '😮', '😢', '🔥'].map((emoji) => (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-[2px] animate-fade-in"
+          onClick={() => setShowEmojiBar(false)}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="flex items-center gap-3 bg-amber-800/95 border border-amber-600/40 px-4 py-2.5 rounded-full shadow-2xl animate-emoji-pop"
+          >
+            {['👍', '❤️', '😂', '😮', '😢', '🔥'].map((emoji, index) => (
               <button
                 key={emoji}
+                style={{ animationDelay: `${index * 35}ms` }}
                 onClick={() => {
                   onReact(message.id, emoji);
                   setShowEmojiBar(false);
                 }}
-                className="text-2xl hover:scale-125 active:scale-95 transition-transform"
+                className="text-3xl hover:scale-135 active:scale-90 transition-transform duration-150 animate-emoji-item"
               >
                 {emoji}
               </button>
             ))}
           </div>
-        </>
+        </div>
       )}
 
       {/* 2A. Right-Swipe Reply Indicator Icon (Appears on the Left) */}
@@ -154,7 +160,7 @@ export default function WhatsAppMessageWrapper({
 
       {/* 2B. Left-Swipe Reply Indicator Icon (Appears on the Right) */}
       <div
-        className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center justify-center w-8 h-8 rounded-full bg-amber-600 text-emerald-400 transition-opacity z-0"
+        className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center justify-center w-8 h-8 rounded-full bg-amber-600 text-white transition-opacity z-0"
         style={{ opacity: translateX < -10 ? 1 : 0 }}
       >
         <Reply className="w-4 h-4 -scale-x-100" />

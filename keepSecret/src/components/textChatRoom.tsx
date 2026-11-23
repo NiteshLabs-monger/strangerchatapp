@@ -7,6 +7,7 @@ import { MessageBubble } from './messagearr.tsx';
 import ReactionWrapper from './reactionwrapper.tsx';
 import { useChatStore, useTouchDeviceStore } from '../store/usechatstore.ts';
 import ConnStatusBar from '../mobilecomponents/connstatusbar.tsx';
+import { SmoothCountUp } from '../mobilecomponents/numberanimation.tsx';
 
 export default function ChatRoom() {
   const messages = useChatStore((s) => s.messages);
@@ -44,11 +45,13 @@ export default function ChatRoom() {
   }, [messages, isTyping]);
 
   return (
-    <div className="h-[100dvh] font-cascadia w-full sm:max-w-6xl bg-amber-400 sm:p-3 rounded-none sm:rounded-lg shadow-md flex flex-col mx-auto overflow-y-auto">
+    <div className=" h-[100dvh] font-cascadia w-full sm:max-w-6xl bg-amber-400 sm:p-3 rounded-none sm:rounded-lg shadow-md flex flex-col mx-auto overflow-y-auto">
       {/* ───── Header ───── */}
+      
       {isTouchDevice ? 
-      (<ConnStatusBar />) : (
-          <header className="w-full flex items-center justify-between gap-2 px-3 sm:px-4 py-2 bg-amber-800 rounded-full sm:rounded-lg shrink-0">
+        (<ConnStatusBar />
+      ) : (
+          <header className=" sticky  w-full flex items-center justify-between gap-2 px-3 sm:px-4 py-2 bg-amber-800 rounded-full  shrink-0">
             <div className="status flex items-center gap-2 text-[#FFE66D] font-bold min-w-0">
               <span className="truncate text-sm sm:text-base">{connStatus}</span>
               {(connStatus.includes('Searching') ||
@@ -57,23 +60,23 @@ export default function ChatRoom() {
                 )}
             </div>
 
-            <div className="text-white font-bold flex gap-1 items-center shrink-0">
+            <div className="bg-white h-10 w-25 rounded-full  text-amber-700 flex gap-1 justify-evenly items-center shrink-0">
               <Circle className="h-3 w-3 fill-emerald-500 text-emerald-500 animate-pulse" />
               <span className="text-sm sm:text-base tabular-nums">
-                {activeUsers}
+               <SmoothCountUp value={activeUsers} duration={0.5} />
               </span>
             </div>
           </header>)}
 
       {/* ───── Message feed ───── */}
-      <div className="messages flex-1 flex flex-col gap-1 px-2 sm:px-4 py-2 mb-0.5 overflow-y-auto scrollbar-none overflow-x-hidden min-h-0">
+      <div className="messages flex-1 flex flex-col gap-1 px-2 sm:px-4 py-2  overflow-y-auto scrollbar-none overflow-x-hidden min-h-0">
         {messages.map((msg) => {
           const isUser = msg.sender === 'user';
           return (
             <div
               key={msg.id}
               id={`msg-${msg.id}`}
-              className={`group relative flex my-0.5 ${isTouchDevice ? 'mb-0.5' : 'mb-2'} gap-1 animate-[slideUp_0.25s_ease-out] scrollbar-none max-w-[85%] sm:max-w-md lg:max-w-lg ${isUser ? 'self-end' : 'self-start'
+              className={`group relative flex mb-0.5 gap-1 animate-slideUp scrollbar-none max-w-[85%] sm:max-w-md lg:max-w-lg ${isUser ? 'self-end' : 'self-start'
                 }`}
             >
               <ReactionWrapper
@@ -124,6 +127,7 @@ export default function ChatRoom() {
           <button
             type="button"
             onClick={skip}
+            disabled={sendDisable}
             className="flex-1 sm:flex-none h-10 px-4 rounded-md bg-red-600 hover:bg-red-700 text-white text-sm font-medium transition-colors"
           >
             Skip

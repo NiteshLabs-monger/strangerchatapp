@@ -13,7 +13,7 @@ export const MessageBubble = ({ message }: MessageProps) => {
       className={`${message.sender === 'user'
           ? 'bg-amber-700 text-amber-300 rounded-br-none'
           : 'bg-white text-amber-700 rounded-bl-none'
-        } rounded-2xl flex flex-col justify-center p-2 w-fit`}
+        } rounded-xl flex flex-col justify-center p-2 w-fit`}
     >
       {message.replyTo && (
         <div
@@ -33,7 +33,11 @@ export const MessageBubble = ({ message }: MessageProps) => {
         </div>
       )}
 
-      <p>{message.content}</p>
+      
+        <p className="text-sm sm:text-base whitespace-pre-wrap break-words ">
+          {message.content}
+        </p>
+    
 
       {(message.reactions?.user || message.reactions?.stranger) && (
         <div className="relative animate-emoji-pop h-7 w-7 bg-amber-400 rounded-full flex -bottom-3 items-center">
