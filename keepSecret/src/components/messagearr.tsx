@@ -17,7 +17,7 @@ export const MessageBubble = ({ message }: MessageProps) => {
     >
       {message.replyTo && (
         <div
-          className="mb-1 pl-2 border-l-4 border-amber-600 bg-black/10 rounded-sm py-1 pr-2 cursor-pointer"
+          className="mb-1 pl-2 border-l-4 border-amber-600 bg-black/10 rounded-sm py-1 pr-2 cursor-pointer min-w-0 max-w-full overflow-hidden"
           onClick={() => {
             document
               .getElementById(`msg-${message.replyTo!.id}`)
@@ -27,14 +27,14 @@ export const MessageBubble = ({ message }: MessageProps) => {
           <div className="text-xs font-bold opacity-80">
             {message.replyTo.sender === 'user' ? 'You' : 'Stranger'}
           </div>
-          <div className="text-sm opacity-90 truncate">
+          <div className="text-sm opacity-90 text-ellipsis overflow-hidden">
             {message.replyTo.content}
           </div>
         </div>
       )}
 
       
-        <p className="text-sm sm:text-base whitespace-pre-wrap break-words ">
+        <p className="text-sm sm:text-base  ">
           {message.content}
         </p>
     

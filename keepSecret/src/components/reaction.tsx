@@ -14,13 +14,6 @@ const Reaction = ({ children, message, onReact, onReply }: reactionProps) => {
             </button>
             <button onClick={() => setShowPicker((v) => !v)} title="React" className="p-1 rounded-full">
                 <FaceSlightlySmiling size={24} className="text-amber-800" />
-                {showPicker && (
-                    <EmojiPickerPopover
-                        onSelect={(emoji) => onReact(message.id, emoji)}
-                        onClose={() => setShowPicker(false)}
-                        positionClass={` bottom-2`}
-                    />
-                )}
             </button>
         </div>
     );
@@ -29,11 +22,15 @@ const Reaction = ({ children, message, onReact, onReply }: reactionProps) => {
         <>
             {isUser && actionButtons}
             {children}
-
             {!isUser && actionButtons}
 
-            
-            
+            {showPicker && (
+                <EmojiPickerPopover
+                    onSelect={(emoji) => onReact(message.id, emoji)}
+                    onClose={() => setShowPicker(false)}
+                    positionClass={`${isUser ? "right-35" : "left-35"} -top-3`}
+                />
+            )}
         </>
     );
 };

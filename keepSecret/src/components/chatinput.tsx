@@ -60,7 +60,7 @@ export const ChatInput = ({ onSend, onChange, sendDisable }: ChatInputProps) => 
           <EmojiPickerPopover
             onSelect={handleEmojiSelect}
             onClose={() => setShowPicker(false)}
-            positionClass="bottom-12 left-0"
+            positionClass="-top-28 -left-12"
           />
         )}
       </div>)}
